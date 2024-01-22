@@ -18,7 +18,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WeatherAppC.cpp">
+    <ClCompile Include="WeatherAppC.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="env.h">
