@@ -3,6 +3,7 @@
 #include <string.h>
 #include <curl/curl.h>
 #include "env.h"
+#include "cJSON.h"
 
 typedef struct {
 	char *string;
@@ -39,7 +40,20 @@ int main() {
 
 	response = curl_easy_perform(curl);
 
-	printf("\n%s\n", result.string);
+	cJSON* json = cJSON_Parse(result.string);
+
+	if (json != NULL) {
+		cJSON* main = cJSON_GetObjectItem(json, "main");
+		cJSON* temp = cJSON_GetObjectItem(main, "temp");
+		
+		int TempValue = temp->valueint;
+		printf("Temp: %d F\n", TempValue);
+
+		cJSON_Delete(json);
+	}
+	else {
+		printf("Failed to parse JSON.\n");
+	}
 
 	curl_easy_cleanup(curl);
 
