@@ -133,8 +133,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cJSON.c" />
     <ClCompile Include="env.h" />
     <ClCompile Include="WeatherAppC.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cJSON.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -16,6 +16,9 @@
     <Filter Include="Исходные файлы\include">
       <UniqueIdentifier>{4138312c-15ee-4d4e-9ff3-8f924dbc8002}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\cJson">
+      <UniqueIdentifier>{95540cf7-0bc4-4f9b-9947-02d2f929a85d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WeatherAppC.c">
@@ -24,5 +27,13 @@
     <ClCompile Include="env.h">
       <Filter>Исходные файлы\include</Filter>
     </ClCompile>
+    <ClCompile Include="cJSON.c">
+      <Filter>Исходные файлы\cJson</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cJSON.h">
+      <Filter>Исходные файлы\cJson</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

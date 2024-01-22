@@ -19,7 +19,7 @@ int main() {
 	sprintf_s(
 		buffer, 
 		sizeof(buffer), 
-		"https://api.openweathermap.org/data/2.5/weather?lat=33.44&lon=94.04&appid=%s", 
+		"https://api.openweathermap.org/data/2.5/weather?q=Kyiv&appid=%s", 
 		WEATHER_API_KEY
 	);
 
