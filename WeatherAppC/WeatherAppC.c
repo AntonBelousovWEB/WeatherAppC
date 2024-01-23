@@ -35,8 +35,12 @@ int main() {
     result.size = 0;
 
     while (!WindowShouldClose()) {
-        if (CheckCollisionPointRec(GetMousePosition(), textBox)) mouseOnText = true;
-        else mouseOnText = false;
+        if (CheckCollisionPointRec(GetMousePosition(), textBox)) {
+            mouseOnText = true;
+        }
+        else {
+            mouseOnText = false;
+        }
 
         if (mouseOnText) {
             SetMouseCursor(MOUSE_CURSOR_IBEAM);
@@ -101,11 +105,21 @@ int main() {
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        DrawText("Type the city name and press ENTER to get the temperature", 150, 140, 20, GRAY);
+        DrawText("Type the city name and press ENTER to get the temperature", 100, 140, 20, GRAY);
 
         DrawRectangleRec(textBox, LIGHTGRAY);
-        if (mouseOnText) DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, RED);
-        else DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
+        if (mouseOnText) {
+            DrawRectangleLines((int)textBox.x, 
+                (int)textBox.y, 
+                (int)textBox.width, 
+                (int)textBox.height, RED);
+        }
+        else {
+            DrawRectangleLines((int)textBox.x, 
+                (int)textBox.y, 
+                (int)textBox.width, 
+                (int)textBox.height, DARKGRAY);
+        }
 
         DrawText(cityName, (int)textBox.x + 5, (int)textBox.y + 8, 40, MAROON);
 
@@ -113,7 +127,10 @@ int main() {
 
         if (mouseOnText) {
             if (letterCount < MAX_INPUT_CHARS) {
-                if (((framesCounter / 20) % 2) == 0) DrawText("_", (int)textBox.x + 8 + MeasureText(cityName, 40), (int)textBox.y + 12, 40, MAROON);
+                if (((framesCounter / 20) % 2) == 0) {
+                    DrawText("_", (int)textBox.x + 8 + MeasureText(cityName, 40), 
+                        (int)textBox.y + 12, 40, MAROON);
+                }
             }
             else DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, GRAY);
         }
