@@ -26,6 +26,7 @@ int main() {
 
     Rectangle textBox = { screenWidth / 2.0f - 100, 180, 225, 50 };
     bool mouseOnText = false;
+    bool showInput = true;
 
     CURL* curl;
     CURLcode response;
@@ -34,105 +35,125 @@ int main() {
     result.string = malloc(1);
     result.size = 0;
 
+    int kelvin = 273;
+    int temperature = 0;
+
     while (!WindowShouldClose()) {
-        if (CheckCollisionPointRec(GetMousePosition(), textBox)) {
-            mouseOnText = true;
+        if (showInput) {
+            if (CheckCollisionPointRec(GetMousePosition(), textBox)) {
+                mouseOnText = true;
+            }
+            else {
+                mouseOnText = false;
+            }
+
+            if (mouseOnText) {
+                SetMouseCursor(MOUSE_CURSOR_IBEAM);
+
+                int key = GetCharPressed();
+                while (key > 0) {
+                    if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS)) {
+                        cityName[letterCount] = (char)key;
+                        cityName[letterCount + 1] = '\0';
+                        letterCount++;
+                    }
+
+                    key = GetCharPressed();
+                }
+
+                if (IsKeyPressed(KEY_BACKSPACE)) {
+                    letterCount--;
+                    if (letterCount < 0) letterCount = 0;
+                    cityName[letterCount] = '\0';
+                }
+
+                if (IsKeyPressed(KEY_ENTER)) {
+                    char buffer[256];
+                    sprintf_s(
+                        buffer,
+                        sizeof(buffer),
+                        "https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s",
+                        cityName,
+                        WEATHER_API_KEY
+                    );
+
+                    curl = curl_easy_init();
+                    result.string = malloc(1);
+                    result.size = 0;
+
+                    curl_easy_setopt(curl, CURLOPT_URL, buffer);
+                    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_chunk);
+                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&result);
+
+                    response = curl_easy_perform(curl);
+
+                    cJSON* json = cJSON_Parse(result.string);
+
+                    if (json != NULL) {
+                        cJSON* main = cJSON_GetObjectItem(json, "main");
+                        cJSON* temp = cJSON_GetObjectItem(main, "temp");
+
+                        temperature = temp->valueint;
+
+                        cJSON_Delete(json);
+                    }
+                    else {
+                        printf("Failed to parse JSON.\n");
+                    }
+
+                    curl_easy_cleanup(curl);
+
+                    showInput = false;
+                }
+            }
+            else SetMouseCursor(MOUSE_CURSOR_DEFAULT);
         }
         else {
-            mouseOnText = false;
-        }
-
-        if (mouseOnText) {
-            SetMouseCursor(MOUSE_CURSOR_IBEAM);
-
-            int key = GetCharPressed();
-            while (key > 0) {
-                if ((key >= 32) && (key <= 125) && (letterCount < MAX_INPUT_CHARS)) {
-                    cityName[letterCount] = (char)key;
-                    cityName[letterCount + 1] = '\0';
-                    letterCount++;
-                }
-
-                key = GetCharPressed();
-            }
-
-            if (IsKeyPressed(KEY_BACKSPACE)) {
-                letterCount--;
-                if (letterCount < 0) letterCount = 0;
-                cityName[letterCount] = '\0';
-            }
-
-            if (IsKeyPressed(KEY_ENTER)) {
-                char buffer[256];
-                sprintf_s(
-                    buffer,
-                    sizeof(buffer),
-                    "https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s",
-                    cityName,
-                    WEATHER_API_KEY
-                );
-
-                curl = curl_easy_init();
-                result.string = malloc(1);
-                result.size = 0;
-
-                curl_easy_setopt(curl, CURLOPT_URL, buffer);
-                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_chunk);
-                curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&result);
-
-                response = curl_easy_perform(curl);
-
-                cJSON* json = cJSON_Parse(result.string);
-
-                if (json != NULL) {
-                    cJSON* main = cJSON_GetObjectItem(json, "main");
-                    cJSON* temp = cJSON_GetObjectItem(main, "temp");
-
-                    int TempValue = temp->valueint;
-                    printf("\n\nTemp: %d K\n", TempValue); // Кельвин
-
-                    cJSON_Delete(json);
-                }
-                else {
-                    printf("Failed to parse JSON.\n");
-                }
-
-                curl_easy_cleanup(curl);
+            if (IsKeyPressed(KEY_RIGHT)) {
+                showInput = true;
+                letterCount = 0;
+                cityName[0] = '\0';
+                temperature = 0;
             }
         }
-        else SetMouseCursor(MOUSE_CURSOR_DEFAULT);
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        DrawText("Type the city name and press ENTER to get the temperature", 100, 140, 20, GRAY);
+        if (showInput) {
+            DrawText("Type the city name and press ENTER to get the temperature", 100, 140, 20, GRAY);
 
-        DrawRectangleRec(textBox, LIGHTGRAY);
-        if (mouseOnText) {
-            DrawRectangleLines((int)textBox.x, 
-                (int)textBox.y, 
-                (int)textBox.width, 
-                (int)textBox.height, RED);
+            DrawRectangleRec(textBox, LIGHTGRAY);
+            if (mouseOnText) {
+                DrawRectangleLines((int)textBox.x,
+                    (int)textBox.y,
+                    (int)textBox.width,
+                    (int)textBox.height, RED);
+            }
+            else {
+                DrawRectangleLines((int)textBox.x,
+                    (int)textBox.y,
+                    (int)textBox.width,
+                    (int)textBox.height, DARKGRAY);
+            }
+
+            DrawText(cityName, (int)textBox.x + 5, (int)textBox.y + 8, 40, MAROON);
+
+            DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, MAX_INPUT_CHARS), 315, 250, 20, DARKGRAY);
+
+            if (mouseOnText) {
+                if (letterCount < MAX_INPUT_CHARS) {
+                    if (((framesCounter / 20) % 2) == 0) {
+                        DrawText("_", (int)textBox.x + 8 + MeasureText(cityName, 40),
+                            (int)textBox.y + 12, 40, MAROON);
+                    }
+                }
+                else DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, GRAY);
+            }
         }
         else {
-            DrawRectangleLines((int)textBox.x, 
-                (int)textBox.y, 
-                (int)textBox.width, 
-                (int)textBox.height, DARKGRAY);
-        }
-
-        DrawText(cityName, (int)textBox.x + 5, (int)textBox.y + 8, 40, MAROON);
-
-        DrawText(TextFormat("INPUT CHARS: %i/%i", letterCount, MAX_INPUT_CHARS), 315, 250, 20, DARKGRAY);
-
-        if (mouseOnText) {
-            if (letterCount < MAX_INPUT_CHARS) {
-                if (((framesCounter / 20) % 2) == 0) {
-                    DrawText("_", (int)textBox.x + 8 + MeasureText(cityName, 40), 
-                        (int)textBox.y + 12, 40, MAROON);
-                }
-            }
-            else DrawText("Press BACKSPACE to delete chars...", 230, 300, 20, GRAY);
+            DrawText(TextFormat("Temperature: %d C", temperature - 273), 100, 200, 20, MAROON);
+            DrawText("Press RIGHT arrow to enter a new city", 100, 250, 20, GRAY);
         }
 
         EndDrawing();
