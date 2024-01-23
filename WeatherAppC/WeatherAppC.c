@@ -1,4 +1,5 @@
 ﻿#include <stdio.h>
+#include "raylib.h"
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
@@ -6,13 +7,25 @@
 #include "cJSON.h"
 
 typedef struct {
-	char *string;
+	char *string; 
 	size_t size;
 } Response;
 
 size_t write_chunk(void* data, size_t size, size_t nmemb, void* userdata);
 
 int main() {
+	const int screenWidth = 500;
+	const int screenHeight = 500;
+	InitWindow(screenWidth, screenHeight, "Empty Window");
+
+	while (!WindowShouldClose()) {
+		BeginDrawing();
+		ClearBackground(RAYWHITE);
+		DrawText("Hello weather app C", 15, 15, 20, BLACK);
+		EndDrawing();
+	}
+	CloseWindow();
+
 	CURL* curl;
 	CURLcode response;
 
@@ -47,7 +60,7 @@ int main() {
 		cJSON* temp = cJSON_GetObjectItem(main, "temp");
 		
 		int TempValue = temp->valueint;
-		printf("Temp: %d F\n", TempValue);
+		printf("Temp: %d K\n", TempValue); // Кельвин
 
 		cJSON_Delete(json);
 	}
