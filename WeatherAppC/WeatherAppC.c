@@ -5,7 +5,7 @@
 #include <curl/curl.h>
 #include "env.h"
 #include "cJSON.h"
-#define MAX_INPUT_CHARS 11
+#define MAX_INPUT_CHARS 9
 
 typedef struct {
     char* string;
